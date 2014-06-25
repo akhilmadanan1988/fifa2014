@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+  <link href="jquery.mobile-1.4.2.min.css" rel="stylesheet" type="text/css" />
+  <link href="" rel="stylesheet" type="text/css" />
+  <script src="jquery-1.9.1.min.js"></script>
+  <script src="jquery.mobile-1.4.2.min.js"></script>
+	<script type="text/javascript">
+    var web_root= 'http://fifa.nlcrm.in/api/';
+    </script>
+
+  <title>FIFA Worldcup 2014</title>
+</head>
+
+<body>
+  <!-- Page: Login  -->
+  <div id="Login" data-role="page">
+    <div data-role="header" data-position="fixed">
+      <h3>FIFA 2014</h3>
+    </div>
+    <div role="main" class="ui-content">
+      <div class="ui-field-contain">
+        <label for="str_email">Email Id</label>
+        <input type="text" name="str_email" id="str_email" placeholder="Email Id">
+      </div>
+      <div class="ui-field-contain">
+        <label for="str_password">Password</label>
+        <input type="password" name="str_password" id="str_password" placeholder="Password">
+      </div>
+      <a class="ui-btn" href="#Home" id="btn_login">Login</a>
+    </div>
+     
+  </div>
+  <!-- Page: Home  -->
+  <div id="Home" data-role="page">
+    <div data-role="header" data-position="fixed">
+      <h3>FIFA 2014</h3>
+    </div>
+    <div role="main" class="ui-content">
+      <h1 is="gk-text">My Score</h1>
+      <ul data-role="listview" data-inset="true" id="ctrlmyscorelist">
+        <li data-role="list-divider">Rs <span id="ctrltotalamount">00.00</span> / -</li>
+      </ul>
+    </div>
+    <div data-position="fixed" data-role="footer">
+      <div data-role="navbar">
+        <ul>
+          <li>
+            <a data-icon="home" class="ui-btn-active ui-state-persist">Home</a>
+          </li>
+          <li>
+            <a data-icon="eye" href="#Todays" class="">Todays</a>
+          </li>
+          <li>
+            <a data-icon="user" href="#Reports">Report</a>
+          </li>
+          <li>
+            <a data-icon="minus" href="#Login" actevent="exit">Exit</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!-- Page: Todays  -->
+  <div id="Todays" data-role="page">
+    <div data-role="header" data-position="fixed">
+      <h3>FIFA 2014</h3>
+    </div>
+    <div role="main" class="ui-content" id="ctrlcollapsiblesetcontainer">     
+      
+    </div>
+    <div data-position="fixed" data-role="footer">
+      <div data-role="navbar">
+        <ul>
+          <li>
+            <a data-icon="home" href="#Home">Home</a>
+          </li>
+          <li>
+            <a data-icon="eye" class="ui-btn-active ui-state-persist">Todays</a>
+          </li>
+          <li>
+            <a data-icon="user" href="#Reports">Reports</a>
+          </li>
+          <li>
+            <a data-icon="minus" href="#Login" actevent="exit">Exit</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!-- Page: Reports  -->
+  <div id="Reports" data-role="page">
+    <div data-role="header" data-position="fixed">
+      <h3>FIFA 2014</h3>
+    </div>
+    <div role="main" class="ui-content">
+      <h1 is="gk-text">Scores</h1>
+      <table data-role="table" data-mode="columntoggle" class="ui-responsive ui-shadow gk-decorate" id="tbl_scores" is="jqm-table">
+        <thead>
+          <tr>
+            <th data-priority="1">No</th>
+            <th data-priority="1">Name</th>
+            <th data-priority="1">Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+        </tbody>
+      </table>
+    </div>
+    <div data-position="fixed" data-role="footer">
+      <div data-role="navbar">
+        <ul>
+          <li>
+            <a data-icon="home" href="#Home">Home</a>
+          </li>
+          <li>
+            <a data-icon="eye" href="#Todays">Todays</a>
+          </li>
+          <li>
+            <a data-icon="user" class="ui-btn-active ui-state-persist">Reports</a>
+          </li>
+          <li>
+            <a data-icon="minus" href="#Login" actevent="exit">Exit</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+	var int_admin_user_id = 0;
+	var str_admin_user_name = "";
+	var node_teams = "";
+
+    $('#btn_login').click(function () {
+		event.preventDefault();
+		var request = $.ajax({
+						  url: web_root+"api.php",
+                          crossDomain: true,
+						  type: "POST",
+						  data: { str_email: $('#str_email').val(), str_password: $('#str_password').val(), page_event:"Login"},
+						  dataType: "json"
+						});
+		request.done(function( msg ) {
+			if(msg['msg'] == 'success'){
+				sessionStorage.int_admin_user_id = msg['fintCustomerId'];
+				sessionStorage.str_admin_user_name = msg['fstrCustomerName'];
+				int_admin_user_id = msg['fintCustomerId'];
+				str_admin_user_name = msg['fstrCustomerName'];
+				location.href='#Home'
+			}
+			else if(msg['msg'] == 'failed'){
+				alert(msg['reason']);
+			}
+		});
+					 
+		request.fail(function( jqXHR, textStatus ) {
+			alert('error');
+			alert( "Request failed: " + textStatus );
+		}); 
+    });
+	
+	$(document).on("pageshow","#Home",function(){ // When entering pagetwo
+		var request = $.ajax({
+						url: web_root+"api.php",
+                         crossDomain: true,
+						type: "POST",
+						data: { int_admin_user_id: sessionStorage.int_admin_user_id, page_event:"fetch_teams_score"},
+						dataType: "json",
+						async: true});
+		
+		request.done(function( msg ) {
+			var succ = false;
+			var errMsg = '';
+			var listhtml = '';
+			$.each( msg[0], function( key, val ) {
+				if(key == 'msg' && val == 'success'){
+					succ = true;
+				}
+				if(key == 'msg' && val == 'failed'){
+					errMsg = 'Some error happened';
+				}
+				if(succ && key == 'team_list'){
+					$.each( val, function( key1, val1 ) {
+						listhtml += '<li  class="ui-li-has-icon"><a href="#" class="ui-btn ui-btn-icon-right ui-icon-carat-r"><img src="images/image.png" class="ui-li-icon">';
+						$.each( val[key1], function( key2, val2 ) {
+							if(key2 == 'team'){
+								listhtml += val2;
+							}
+							if(key2 == 'score'){
+								listhtml += '&nbsp;= '+ val2;
+							}
+						});
+						listhtml += '</a></li>';
+					});
+				}
+				if(succ && key == 'total_score'){
+					$('#ctrltotalamount').html(val);
+					$("#ctrlmyscorelist").append(listhtml);
+				}			
+			  });		 
+			if(!succ){
+				alert(errMsg);
+			}
+		});
+					 
+		request.fail(function( jqXHR, textStatus ) {
+			alert('error');
+			alert( "Request failed: " + textStatus );
+		}); 
+		  
+	});
+	
+	$(document).on("pageshow","#Todays",function(){ // When entering pagetwo
+	
+		var d = new Date();
+		if(d.getHours() < 19) {		
+				var request = $.ajax({
+					url: web_root+"api.php",
+					type: "POST",
+					data: { int_admin_user_id: sessionStorage.int_admin_user_id, page_event:"fetch_todays_teams"},
+					dataType: "json",
+					async: true});
+				
+				request.done(function( msg ) {
+					var succ = false;
+					var errMsg = '';
+					var listhtml = '';
+					$.each( msg[0], function( key, val ) {
+						if(key == 'msg' && val == 'success'){
+							succ = true;
+						}
+						if(key == 'msg' && val == 'failed'){
+							errMsg = 'Some error happened';
+						}
+						if(succ && key == 'team_list'){
+							$.each( val, function( key1, val1 ) {
+								var mainwrap = $("<div/>").attr('data-role', 'collapsibleset').attr('class','ui-collapsible-set ui-group-theme-inherit ui-corner-all');
+								var subwrap = $("<div/>").attr('data-role', 'collapsible').attr('data-collapsed','true').attr('class','ui-collapsible ui-collapsible-inset ui-corner-all ui-collapsible-themed-content ui-collapsible-collapsed ui-first-child ui-last-child');
+								var datawrap1 = $("<div/>").attr('class', 'ui-field-contain');
+								var datawrap2 = $("<div/>").attr('class', 'ui-field-contain');
+								var datawrap3 = $("<div/>").attr('class', 'ui-field-contain');
+								var inputwrap1 = $("<div/>").attr('class', 'ui-input-text ui-body-inherit ui-corner-all ui-shadow-inset');
+								var inputwrap2 = $("<div/>").attr('class', 'ui-input-text ui-body-inherit ui-corner-all ui-shadow-inset');
+								var label1, label2;
+								var input1, input2;
+								str_app_id = '';
+								$.each( val[key1], function( key2, val2 ) {
+									if(key2 == 'teams'){
+										$("<h3/>", {
+												text: val2
+											}).appendTo(subwrap);
+									}
+									if(key2 == 'team1'){
+										label1 = $("<label/>", {
+												text: val2
+											});
+									}
+									if(key2 == 'team1id'){
+										label1.attr('for', 'inputteamid_'+val2);
+										label1.appendTo(datawrap1);
+										input1 = $("<input/>").attr('id', 'inputteamid_'+val2).attr('name', 'inputteamid_'+val2).attr('type','number');
+										input1.appendTo(inputwrap1);
+										inputwrap1.appendTo(datawrap1);
+										str_app_id = val2;
+									}
+									if(key2 == 'team2'){
+										label2 = $("<label/>", {
+												text: val2
+											});
+									}
+									if(key2 == 'team2id'){
+										label2.attr('for', 'inputteamid_'+val2);
+										label2.appendTo(datawrap2);
+										input2 = $("<input/>").attr('id', 'inputteamid_'+val2).attr('name', 'inputteamid_'+val2).attr('type','number');
+										input2.appendTo(inputwrap2);
+										inputwrap2.appendTo(datawrap2);
+										$("<a/>", {
+												text: 'Apply'
+											}).attr('id', 'apply_team_'+str_app_id + '_'+ val2).attr('class','ui-btn').appendTo(datawrap3);
+									}
+									if(key2 == 'team1_score'){
+										input1.attr('value',val2);
+									}
+									if(key2 == 'team2_score'){
+										input2.attr('value',val2);
+									}
+								});
+								datawrap1.appendTo(subwrap);
+								datawrap2.appendTo(subwrap);
+								datawrap3.appendTo(subwrap);
+								subwrap.collapsible();
+								subwrap.appendTo(mainwrap);	
+								mainwrap.appendTo("#ctrlcollapsiblesetcontainer");
+							});
+						}
+				
+					  });
+					  
+					 
+					if(!succ){
+						alert(errMsg);
+					}
+				
+					$( "a[id^='apply_team_']" ).click(function () {
+						var ids = $(this).attr('id').split('_');
+						var id1 = ids[2];
+						var id2 = ids[3];
+						if($('#inputteamid_'+id1).val() == '' || $('#inputteamid_'+id2).val() == '') {
+							alert('please enter the values');
+						}
+						else {
+							var request1 = $.ajax({
+										url: web_root+"api.php",
+										type: "POST",
+										data: { int_admin_user_id: sessionStorage.int_admin_user_id, int_team1_id:id1,int_team1_score: $('#inputteamid_'+id1).val(), int_team2_id:id2,int_team2_score: $('#inputteamid_'+id2).val(), page_event:"submit_prediction"},
+										dataType: "json",
+										async: true});
+							
+							request1.done(function( msg ) {									
+									if(msg['msg'] == 'success'){
+										alert('Updated the prediction successfully');
+									}
+									 
+									if(msg['msg'] == 'failed'){
+										alert(msg['reason']);
+									}							
+								});
+											 
+								request1.fail(function( jqXHR, textStatus ) {
+									alert('error');
+									alert( "Request failed: " + textStatus );
+								}); 
+							
+						}
+					});
+				});
+							 
+				request.fail(function( jqXHR, textStatus ) {
+					alert('error');
+					alert( "Request failed: " + textStatus );
+				}); 
+		
+		} // end of condition if the time is before 7:00 pm
+		
+		else {
+			var request = $.ajax({
+					url: web_root+"api.php",
+					type: "POST",
+					data: { int_admin_user_id: sessionStorage.int_admin_user_id, page_event:"fetch_todays_predicted_teams"},
+					dataType: "json",
+					async: true});
+			request.done(function( msg ) {
+					var succ = false;
+					var errMsg = '';
+					var listhtml = '';
+					$.each( msg[0], function( key, val ) {
+						if(key == 'msg' && val == 'success'){
+							succ = true;
+						}
+						if(key == 'msg' && val == 'failed'){
+							errMsg = 'Some error happened';
+						}
+						if(succ && key == 'team_list'){
+							str_user_prediction = '';
+							str_sel_team = '';
+							team_changed = true;
+							$.each( val, function( key1, val1 ) {
+								var mainwrap = $("<div/>").attr('data-role', 'collapsibleset').attr('class','ui-collapsible-set ui-group-theme-inherit ui-corner-all');
+								var subwrap = $("<div/>").attr('data-role', 'collapsible').attr('data-collapsed','true').attr('class','ui-collapsible ui-collapsible-inset ui-corner-all ui-collapsible-themed-content ui-collapsible-collapsed ui-first-child ui-last-child');
+								var datawrap1 = $("<div/>").attr('class', 'ui-field-contain');							
+			
+								$.each( val[key1], function( key2, val2 ) {
+									if(key2 == 'team_selected'){
+										$("<h3/>", {
+												text: val2
+											}).appendTo(subwrap);
+										alert(val2);
+									}
+									if(key2 == 'predictor_results_comb'){
+										$("<p/>").html(val2.replace('||,', '<br />').replace('||', '<br />')).appendTo(datawrap1);
+									}
+								});
+								datawrap1.appendTo(subwrap);								
+								subwrap.collapsible();
+								subwrap.appendTo(mainwrap);	
+								//mainwrap.collapsibleset( "refresh" );					
+								mainwrap.appendTo("#ctrlcollapsiblesetcontainer");
+								//mainwrap.collapsible();
+								//$( "#ctrlcollapsiblesetcontainer" ).collapsibleset( "refresh" )
+								//mainwrap.collapsibleset( "refresh" );
+							});
+						}
+				
+					  });
+					  
+					 
+					if(!succ){
+						alert(errMsg);
+					}
+				
+					
+				});
+							 
+				request.fail(function( jqXHR, textStatus ) {
+					alert('error');
+					alert( "Request failed: " + textStatus );
+				}); 
+		}
+		
+		  
+	});
+	
+	$(document).on("pageshow","#Reports",function(){ // When entering page three
+		var request = $.ajax({
+					url: web_root+"api.php",
+					type: "POST",
+					data: { int_admin_user_id: sessionStorage.int_admin_user_id, page_event:"fetch_all_scores"},
+					dataType: "json",
+					async: true});
+			request.done(function( msg ) {
+					var succ = false;
+					var errMsg = '';
+					var listhtml = '';
+					$.each( msg[0], function( key, val ) {
+						if(key == 'msg' && val == 'success'){
+							succ = true;
+						}
+						if(key == 'msg' && val == 'failed'){
+							errMsg = 'Some error happened';
+						}
+						if(succ && key == 'team_list'){
+							tcount  = 1;
+							$.each( val, function( key1, val1 ) {
+								var row = $("<tr />");								
+								$.each( val[key1], function( key2, val2 ) {
+									
+									if(key2 == 'user'){
+										row.append($("<td>" + tcount + "</td>"));
+										row.append($("<td>" + val2 + "</td>"));
+										tcount++;
+									}
+									if(key2 == 'score_amount'){
+										row.append($("<td>" + val2 + "</td>"));
+									}									
+								});
+								$("#tbl_scores").append(row); 
+							});
+						}
+				
+					  });
+					  
+					 
+					if(!succ){
+						alert(errMsg);
+					}
+					
+				});
+							 
+				request.fail(function( jqXHR, textStatus ) {
+					alert('error');
+					alert( "Request failed: " + textStatus );
+				});
+	});
+	
+	
+	$( "a[actevent^='exit']" ).click(function () {
+		sessionStorage.removeItem("int_admin_user_id");
+		sessionStorage.removeItem("str_admin_user_name");
+		alert('Exit');				
+	});
+  </script>
+</html>
