@@ -19,7 +19,7 @@
   <!-- Page: Login  -->
   <div id="Login" data-role="page">
     <div data-role="header" data-position="fixed">
-      <h3>FIFA Worldcup 2014</h3>
+      <h3>FIFA 2014</h3>
     </div>
     <div role="main" class="ui-content">
       <div class="ui-field-contain">
@@ -37,7 +37,7 @@
   <!-- Page: Home  -->
   <div id="Home" data-role="page">
     <div data-role="header" data-position="fixed">
-      <h3>FIFA Worldcup 2014</h3>
+      <h3>FIFA 2014</h3>
     </div>
     <div role="main" class="ui-content">
       <h1 is="gk-text">My Score</h1>
@@ -67,7 +67,7 @@
   <!-- Page: Todays  -->
   <div id="Todays" data-role="page">
     <div data-role="header" data-position="fixed">
-      <h3>FIFA Worldcup 2014</h3>
+      <h3>FIFA 2014</h3>
     </div>
     <div role="main" class="ui-content" id="ctrlcollapsiblesetcontainer">     
       
@@ -94,7 +94,7 @@
   <!-- Page: Reports  -->
   <div id="Reports" data-role="page">
     <div data-role="header" data-position="fixed">
-      <h3>FIFA Worldcup 2014</h3>
+      <h3>FIFA 2014</h3>
     </div>
     <div role="main" class="ui-content">
       <h1 is="gk-text">Scores</h1>
@@ -132,59 +132,35 @@
   </div>
 </body>
 <script>
-	$(document).ready(function(){
-	  $("#str_email").focus();
-	});
 	var int_admin_user_id = 0;
 	var str_admin_user_name = "";
 	var node_teams = "";
-	
-	$(document).on("pageshow","#Login",function(){ // When entering page Login
-	
-	});
 
     $('#btn_login').click(function () {
 		event.preventDefault();
-			if($('#str_email').val() == '') {
-				alert('please enter the email id');
-				$("#str_email").focus();
+		var request = $.ajax({
+						  url: web_root+"api.php",
+						  type: "POST",
+						  data: { str_email: $('#str_email').val(), str_password: $('#str_password').val(), page_event:"Login"},
+						  dataType: "json"
+						});
+		request.done(function( msg ) {
+			if(msg['msg'] == 'success'){
+				sessionStorage.int_admin_user_id = msg['fintCustomerId'];
+				sessionStorage.str_admin_user_name = msg['fstrCustomerName'];
+				int_admin_user_id = msg['fintCustomerId'];
+				str_admin_user_name = msg['fstrCustomerName'];
+				location.href='#Home'
 			}
-			else if($('#str_password').val() == '') {
-				alert('please enter the password');
-				$("#str_password").focus();
+			else if(msg['msg'] == 'failed'){
+				alert(msg['reason']);
 			}
-			else {
-			var request = $.ajax({
-							  url: web_root+"api.php",
-							  type: "POST",
-							  data: { 
-                                  'str_email': $('#str_email').val(), 
-                                  'str_password': $('#str_password').val(), 
-                                  'page_event':"Login"
-                              },
-							  dataType: "json"
-							});
-			request.done(function( msg ) {
-				if(msg['msg'] == 'success'){
-					sessionStorage.int_admin_user_id = msg['fintCustomerId'];
-					sessionStorage.str_admin_user_name = msg['fstrCustomerName'];
-					int_admin_user_id = msg['fintCustomerId'];
-					str_admin_user_name = msg['fstrCustomerName'];
-                    
-//                    location.href = '#Home';
-					 $.mobile.changePage('#Home','slide');
-				}
-				else if(msg['msg'] == 'failed'){
-					alert(msg['reason']);
-				}
-			});
-						 
-			request.fail(function( jqXHR, textStatus ) {
-				alert('error');
-				alert( "Request failed: " + textStatus );
-			}); 
-			
-		}
+		});
+					 
+		request.fail(function( jqXHR, textStatus ) {
+			alert('error');
+			alert( "Request failed: " + textStatus );
+		}); 
     });
 	
 	$(document).on("pageshow","#Home",function(){ // When entering pagetwo
@@ -199,7 +175,7 @@
 			var succ = false;
 			var errMsg = '';
 			var listhtml = '';
-            $('#ctrlmyscorelist li:not(:first)').remove();
+              $('#ctrlmyscorelist li:not(:first)').remove();
 			$.each( msg[0], function( key, val ) {
 				if(key == 'msg' && val == 'success'){
 					succ = true;
@@ -253,7 +229,7 @@
 					var succ = false;
 					var errMsg = '';
 					var listhtml = '';
-                    $('#ctrlcollapsiblesetcontainer').html('');
+                   $('#ctrlcollapsiblesetcontainer').html('');
 					$.each( msg[0], function( key, val ) {
 						if(key == 'msg' && val == 'success'){
 							succ = true;
@@ -383,7 +359,7 @@
 					var errMsg = '';
 					var listhtml = '';
                 $('#ctrlcollapsiblesetcontainer').html('');
-                $.each( msg[0], function( key, val ) {
+					$.each( msg[0], function( key, val ) {
 						if(key == 'msg' && val == 'success'){
 							succ = true;
 						}
@@ -403,7 +379,8 @@
 									if(key2 == 'team_selected'){
 										$("<h3/>", {
 												text: val2
-											}).appendTo(subwrap);										
+											}).appendTo(subwrap);
+										alert(val2);
 									}
 									if(key2 == 'predictor_results_comb'){
 										$("<p/>").html(val2.replace('||,', '<br />').replace('||', '<br />')).appendTo(datawrap1);
@@ -450,7 +427,7 @@
 					var succ = false;
 					var errMsg = '';
 					var listhtml = '';
-                $('#tbl_scores tr:not(:first)').remove();
+                 $('#tbl_scores tr:not(:first)').remove();
 					$.each( msg[0], function( key, val ) {
 						if(key == 'msg' && val == 'success'){
 							succ = true;
@@ -494,12 +471,9 @@
 	
 	
 	$( "a[actevent^='exit']" ).click(function () {
-		event.preventDefault();
-		if(confirm('Are you sure you want to logout?')) {
-			sessionStorage.removeItem("int_admin_user_id");
-			sessionStorage.removeItem("str_admin_user_name");
-			 $.mobile.changePage('#Home','slide');
-		}				
+		sessionStorage.removeItem("int_admin_user_id");
+		sessionStorage.removeItem("str_admin_user_name");
+		alert('Exit');				
 	});
   </script>
 </html>
