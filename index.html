@@ -193,6 +193,7 @@
 			var succ = false;
 			var errMsg = '';
 			var listhtml = '';
+            $('#ctrlmyscorelist li:not(:first)').remove();
 			$.each( msg[0], function( key, val ) {
 				if(key == 'msg' && val == 'success'){
 					succ = true;
@@ -246,6 +247,7 @@
 					var succ = false;
 					var errMsg = '';
 					var listhtml = '';
+                    $('#ctrlcollapsiblesetcontainer').html('');
 					$.each( msg[0], function( key, val ) {
 						if(key == 'msg' && val == 'success'){
 							succ = true;
@@ -374,7 +376,8 @@
 					var succ = false;
 					var errMsg = '';
 					var listhtml = '';
-					$.each( msg[0], function( key, val ) {
+                $('#ctrlcollapsiblesetcontainer').html('');
+                $.each( msg[0], function( key, val ) {
 						if(key == 'msg' && val == 'success'){
 							succ = true;
 						}
@@ -441,6 +444,7 @@
 					var succ = false;
 					var errMsg = '';
 					var listhtml = '';
+                $('#tbl_scores tr:not(:first)').remove();
 					$.each( msg[0], function( key, val ) {
 						if(key == 'msg' && val == 'success'){
 							succ = true;

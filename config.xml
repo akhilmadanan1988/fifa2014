@@ -32,7 +32,7 @@
 	<gap:splash src="images/splash.png" gap:platform="android" gap:density="hdpi" />
 	<gap:splash src="images/splash.png" gap:platform="android" gap:density="xhdpi" />
     
-    
+    <gap:splash src="images/splash.jpg" gap:platform="winphone" />
     
     <access origin="http://127.0.0.1*" />
 </widget>
