@@ -150,7 +150,9 @@
 				sessionStorage.str_admin_user_name = msg['fstrCustomerName'];
 				int_admin_user_id = msg['fintCustomerId'];
 				str_admin_user_name = msg['fstrCustomerName'];
-				location.href='#Home'
+				//location.href='#Home'
+                
+                $.mobile.changePage('#Home','slide');
 			}
 			else if(msg['msg'] == 'failed'){
 				alert(msg['reason']);
@@ -473,7 +475,8 @@
 	$( "a[actevent^='exit']" ).click(function () {
 		sessionStorage.removeItem("int_admin_user_id");
 		sessionStorage.removeItem("str_admin_user_name");
-		alert('Exit');				
+		alert('Exit');	
+        
 	});
   </script>
 </html>
