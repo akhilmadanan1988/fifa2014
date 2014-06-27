@@ -72,6 +72,12 @@
     <div role="main" class="ui-content" id="ctrlcollapsiblesetcontainer">     
       
     </div>
+    <div role="main" class="ui-content">
+        <a class="ui-btn" id="btn_view_predictions">View Latest Predictions</a>
+        <div role="main" class="ui-content" id="ctrlcollapsiblesetcontainerforpreds">     
+          
+        </div>
+    </div>
     <div data-position="fixed" data-role="footer">
       <div data-role="navbar">
         <ul>
@@ -233,6 +239,7 @@
 	$(document).on("pageshow","#Todays",function(){ // When entering pagetwo
 	
 		var d = new Date();
+		$('#ctrlcollapsiblesetcontainer').html('');
 		if(d.getHours() < 19) {		
 				var request = $.ajax({
 					url: web_root+"api.php",
@@ -364,68 +371,7 @@
 		} // end of condition if the time is before 7:00 pm
 		
 		else {
-			var request = $.ajax({
-					url: web_root+"api.php",
-					type: "POST",
-					data: { int_admin_user_id: window.sessionStorage.int_admin_user_id, page_event:"fetch_todays_predicted_teams"},
-					dataType: "json",
-					async: true});
-			request.done(function( msg ) {
-					var succ = false;
-					var errMsg = '';
-					var listhtml = '';
-                $('#ctrlcollapsiblesetcontainer').html('');
-                $.each( msg[0], function( key, val ) {
-						if(key == 'msg' && val == 'success'){
-							succ = true;
-						}
-						if(key == 'msg' && val == 'failed'){
-							errMsg = 'Some error happened';
-						}
-						if(succ && key == 'team_list'){
-							str_user_prediction = '';
-							str_sel_team = '';
-							team_changed = true;
-							$.each( val, function( key1, val1 ) {
-								var mainwrap = $("<div/>").attr('data-role', 'collapsibleset').attr('class','ui-collapsible-set ui-group-theme-inherit ui-corner-all');
-								var subwrap = $("<div/>").attr('data-role', 'collapsible').attr('data-collapsed','true').attr('class','ui-collapsible ui-collapsible-inset ui-corner-all ui-collapsible-themed-content ui-collapsible-collapsed ui-first-child ui-last-child');
-								var datawrap1 = $("<div/>").attr('class', 'ui-field-contain');							
 			
-								$.each( val[key1], function( key2, val2 ) {
-									if(key2 == 'team_selected'){
-										$("<h3/>", {
-												text: val2
-											}).appendTo(subwrap);										
-									}
-									if(key2 == 'predictor_results_comb'){
-										$("<p/>").html(val2.replace('||,', '<br />').replace('||', '<br />')).appendTo(datawrap1);
-									}
-								});
-								datawrap1.appendTo(subwrap);								
-								subwrap.collapsible();
-								subwrap.appendTo(mainwrap);	
-								//mainwrap.collapsibleset( "refresh" );					
-								mainwrap.appendTo("#ctrlcollapsiblesetcontainer");
-								//mainwrap.collapsible();
-								//$( "#ctrlcollapsiblesetcontainer" ).collapsibleset( "refresh" )
-								//mainwrap.collapsibleset( "refresh" );
-							});
-						}
-				
-					  });
-					  
-					 
-					if(!succ){
-						alert(errMsg);
-					}
-				
-					
-				});
-							 
-				request.fail(function( jqXHR, textStatus ) {
-					alert('error');
-					alert( "Request failed: " + textStatus );
-				}); 
 		}
 		
 		  
@@ -494,6 +440,76 @@
 			window.sessionStorage.str_admin_user_name = "";
 			$.mobile.changePage('#Login','slide');
 		}				
+	});
+	
+	$('#btn_view_predictions').click(function () {
+		(event.preventDefault) ? event.preventDefault() : event.returnValue = false;
+		var request = $.ajax({
+					url: web_root+"api.php",
+					type: "POST",
+					data: { int_admin_user_id: window.sessionStorage.int_admin_user_id, page_event:"fetch_todays_predicted_teams"},
+					dataType: "json",
+					async: true});
+			request.done(function( msg ) {
+					var succ = false;
+					var errMsg = '';
+					var listhtml = '';
+                $('#ctrlcollapsiblesetcontainerforpreds').html('');
+                $.each( msg[0], function( key, val ) {
+						if(key == 'msg' && val == 'success'){
+							succ = true;
+						}
+						if(key == 'msg' && val == 'failed'){
+							errMsg = 'Some error happened';
+						}
+						if(succ && key == 'team_list'){
+							str_user_prediction = '';
+							str_sel_team = '';
+							team_changed = true;
+							$.each( val, function( key1, val1 ) {
+								
+									var mainwrap = $("<div/>").attr('data-role', 'collapsibleset').attr('class','ui-collapsible-set ui-group-theme-inherit ui-corner-all');
+									var subwrap = $("<div/>").attr('data-role', 'collapsible').attr('data-collapsed','true').attr('class','ui-collapsible ui-collapsible-inset ui-corner-all ui-collapsible-themed-content ui-collapsible-collapsed ui-first-child ui-last-child');
+									var datawrap1 = $("<div/>").attr('class', 'ui-field-contain');
+									team_changed = true;
+															
+			
+								$.each( val[key1], function( key2, val2 ) {
+									if(key2 == 'match_going' && str_sel_team != val2){
+										$("<h3/>", {
+												text: val2
+											}).appendTo(subwrap);										
+									}
+									if(key2 == 'team_selected'){
+										$("<p/>").html("<pre style=\"font-size:15px;\">"+val2.replace(',', '')+"</pre>").appendTo(datawrap1);									
+									}
+									
+								});
+								datawrap1.appendTo(subwrap);								
+								subwrap.collapsible();
+								subwrap.appendTo(mainwrap);	
+								//mainwrap.collapsibleset( "refresh" );					
+								mainwrap.appendTo("#ctrlcollapsiblesetcontainerforpreds");
+								//mainwrap.collapsible();
+								//$( "#ctrlcollapsiblesetcontainer" ).collapsibleset( "refresh" )
+								//mainwrap.collapsibleset( "refresh" );
+							});
+						}
+				
+					  });
+					  
+					 
+					if(!succ){
+						alert(errMsg);
+					}
+				
+					
+				});
+							 
+				request.fail(function( jqXHR, textStatus ) {
+					alert('error');
+					alert( "Request failed: " + textStatus );
+				}); 
 	});
 
 </script>
